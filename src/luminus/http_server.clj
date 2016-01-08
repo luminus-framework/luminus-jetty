@@ -11,7 +11,7 @@
       (init)
       (reset! http-server
           (run-jetty
-            {:ring-handler app
+            {:ring-handler handler
              :port port
              :join? false}))
       (log/info "server started on port:" (:port @http-server)))))
