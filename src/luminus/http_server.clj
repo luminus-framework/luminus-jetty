@@ -10,10 +10,10 @@
     (do
       (init)
       (reset! http-server
-          (run-jetty
-            {:ring-handler handler
-             :port port
-             :join? false}))
+              (run-jetty
+               {:ring-handler handler
+                :port port
+                :join? false}))
       (log/info "server started on port:" (:port @http-server)))))
 
 (defn stop [destroy]
