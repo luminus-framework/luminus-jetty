@@ -1,6 +1,6 @@
 (defproject luminus-jetty "0.1.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Jetty adapter for Luminus"
+  :url "https://github.com/luminus-framework/luminus-jetty"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
