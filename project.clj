@@ -1,4 +1,4 @@
-(defproject luminus-jetty "0.1.0"
+(defproject luminus-jetty "0.1.1"
   :description "Jetty adapter for Luminus"
   :url "https://github.com/luminus-framework/luminus-jetty"
   :license {:name "Eclipse Public License"
