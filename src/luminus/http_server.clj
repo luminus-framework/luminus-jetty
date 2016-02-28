@@ -6,18 +6,18 @@
 (defn start [{:keys [init port] :as opts}]
   (try
     (init)
-    (reset! http-server
-            (run-jetty
-              (merge
-                {:join? false}
-                (-> opts
-                    (dissoc :init)
-                    (rename-keys {:handler :ring-handler})))))
-    (log/info "server started on port" port)
+    (let [server (run-jetty
+                   (merge
+                     {:join? false}
+                     (-> opts
+                         (dissoc :init)
+                         (rename-keys {:handler :ring-handler}))))]
+      (log/info "server started on port" port)
+      server)
     (catch Throwable t
       (log/error t (str "server failed to start on port: " port)))))
 
-(defn stop [http-server destroy]
+(defn stop [server destroy]
   (destroy)
-  (.stop http-server)
+  (.stop server)
   (log/info "HTTP server stopped"))
