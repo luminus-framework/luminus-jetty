@@ -1,14 +1,15 @@
 (ns luminus.http-server
   (:require [clojure.tools.logging :as log]
             [clojure.set :refer [rename-keys]]
-            [qbits.jet.server :refer [run-jetty]]))
+            [ring.adapter.jetty :refer [run-jetty]]))
 
-(defn start [{:keys [port] :as opts}]
+(defn start [{:keys [handler port] :as opts}]
   (try
     (let [server (run-jetty
-                   (merge
-                     {:join? false}
-                     (rename-keys opts {:handler :ring-handler})))]
+                   handler
+                   (-> opts
+                       (dissoc :handler)
+                       (assoc :join? false)))]
       (log/info "server started on port" port)
       server)
     (catch Throwable t

@@ -1,4 +1,4 @@
-(defproject luminus-jetty "0.1.6"
+(defproject luminus-jetty "0.1.7"
   :description "Jetty adapter for Luminus"
   :url "https://github.com/luminus-framework/luminus-jetty"
   :license {:name "Eclipse Public License"
@@ -6,4 +6,4 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.logging "0.4.0"]
                  [org.clojure/core.async "0.3.465"]
-                 [cc.qbits/jet "0.7.11"]])
+                 [ring/ring-jetty-adapter "1.7.1"]])
