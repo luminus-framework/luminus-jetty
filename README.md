@@ -36,17 +36,17 @@ Jetty HTTP adapter for Luminus
 (def ws-handler-a
    {:context-path         "/ws-a" ;WS handler context
     :allow-null-path-info true ;default false
-    :on-connect           (fn [& args]
-                            (log/info "WS connect" args))
-    :on-error             (fn [& args]
-                            (log/info "WS error" args))
+    :on-connect           (fn [ws]
+                            (log/info "WS connect" ws))
+    :on-error             (fn [ws e]
+                            (log/info "WS error" e))
     :on-text              (fn [ws text]
                             (log/info "text:" text)
                             (ws/send! ws text))
-    :on-close             (fn [ws]
+    :on-close             (fn [ws status-code reason]
                             (log/info "WS close" args))
-    :on-bytes             (fn [& args]
-                            (log/info "WS bytes" args))}))
+    :on-bytes             (fn [ws bytes offset len]
+                            (log/info "WS bytes" bytes))}))
 
 (def ws-handler-b
    {:context-path         "/ws-b" ;WS handler context    
