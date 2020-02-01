@@ -1,19 +1,33 @@
 (ns luminus.ws
-  (:import [org.eclipse.jetty.server Request]
-           [org.eclipse.jetty.server.handler
-            ContextHandler]
-           [org.eclipse.jetty.websocket.api
-            WebSocketAdapter Session
-            UpgradeRequest RemoteEndpoint WriteCallback]
-           [org.eclipse.jetty.websocket.server WebSocketHandler]
-           [org.eclipse.jetty.websocket.servlet
-            WebSocketServletFactory WebSocketCreator]
-           [clojure.lang IFn]
-           [java.nio ByteBuffer])
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string])
+  (:import 
+   [javax.servlet.http HttpServletResponse]
+   [org.eclipse.jetty.server Request]
+   [org.eclipse.jetty.server.handler
+    ContextHandler]
+   [org.eclipse.jetty.websocket.api
+    WebSocketAdapter Session
+    UpgradeRequest RemoteEndpoint WriteCallback]
+   [org.eclipse.jetty.websocket.server WebSocketHandler]
+   [org.eclipse.jetty.websocket.servlet
+    WebSocketServletFactory WebSocketCreator]
+   [clojure.lang IFn]
+   [java.nio ByteBuffer]))
 
 (defprotocol RequestMapDecoder
   (build-request-map [r]))
+
+(defn set-headers
+  "Update a HttpServletResponse with a map of headers."
+  [^HttpServletResponse response, headers]
+  (doseq [[key val-or-vals] headers]
+    (if (string? val-or-vals)
+      (.setHeader response key val-or-vals)
+      (doseq [val val-or-vals]
+        (.addHeader response key val))))
+  ; Some headers must be set through specific methods
+  (when-let [content-type (get headers "Content-Type")]
+    (.setContentType response content-type)))
 
 (defprotocol WebSocketProtocol
   (send! [this msg] [this msg callback])
@@ -134,9 +148,21 @@
     (createWebSocket [this _ _]
       (proxy-ws-adapter options))))
 
+(defn- reify-custom-ws-creator
+  [ws-creator-fn]
+  (reify WebSocketCreator
+    (createWebSocket [this req resp]
+      (let [req-map (build-request-map req)
+            ws-results (ws-creator-fn req-map)]
+        (if-let [{:keys [code message headers]} (:error ws-results)]
+          (do (set-headers resp headers)
+              (.sendError resp code message))
+          (proxy-ws-adapter ws-results))))))
+
 (defn ^:internal proxy-ws-handler
   "Returns a Jetty websocket handler"
-  [{:keys [ws-max-idle-time
+  [{:keys [handler-fn
+           ws-max-idle-time
            ws-max-text-message-size]
     :or   {ws-max-idle-time         500000
            ws-max-text-message-size 65536}
@@ -146,7 +172,10 @@
       (doto (.getPolicy factory)
         (.setIdleTimeout ws-max-idle-time)
         (.setMaxTextMessageSize ws-max-text-message-size))
-      (.setCreator factory (reify-default-ws-creator options)))
+      (.setCreator factory
+                   (if handler-fn
+                     (reify-custom-ws-creator handler-fn)
+                     (reify-default-ws-creator options))))
     (handle [^String target, ^Request request req res]
       (let [wsf (proxy-super getWebSocketFactory)]
         (if (.isUpgradeRequest wsf req res)

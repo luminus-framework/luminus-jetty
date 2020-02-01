@@ -33,6 +33,7 @@ Jetty HTTP adapter for Luminus
    :headers {"Content-Type" "text/plain"}
    :body (:remote-addr request)})
 
+;; a handler can be specified using a map
 (def ws-handler-a
    {:context-path         "/ws-a" ;WS handler context
     :allow-null-path-info true ;default false
@@ -48,11 +49,23 @@ Jetty HTTP adapter for Luminus
     :on-bytes             (fn [& args]
                             (log/info "WS bytes" args))}))
 
+;; alternatively you can provide a :handler-fn key
+;; the key should point to a function that accepts a
+;; Ring request map to initialize the websocket connection
 (def ws-handler-b
    {:context-path         "/ws-b" ;WS handler context    
-    :on-text              (fn [ws text]
-                            (log/info "text:" text)
-                            (ws/send! ws text))}))
+    :handler-fn   (fn [req]                    
+                    {:on-connect (fn [& args]
+                                   (log/info "WS connect" args))
+                     :on-error   (fn [& args]
+                                   (log/info "WS error" args))
+                     :on-text    (fn [ws text]
+                                   (log/info "text:" text)
+                                   (ws/send! ws text))
+                     :on-close   (fn [& args]
+                                   (log/info "WS close" args))
+                     :on-bytes   (fn [& args]
+                                   (log/info "WS bytes" args))})})
 
 ;;create a single WS handler
 (http/start
