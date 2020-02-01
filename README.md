@@ -101,13 +101,7 @@ A callback can also be specified for `send!`:
 (send! ws msg {:write-failed (fn [throwable]) :write-success (fn [])})
 ```
 
- A callback is a map where keys `:write-failed` and `:write-success` are optional.
-
-There is a new option `:websockets` available. Accepting a map of context path and listener class:
-```clojure
-(use 'ring.adapter.jetty9)
-(run-jetty app {:websockets {"/loc" ws-handler}})
-```
+A callback is a map where keys `:write-failed` and `:write-success` are optional.
 
 ### attribution
 
