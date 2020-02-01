@@ -37,17 +37,17 @@ Jetty HTTP adapter for Luminus
 (def ws-handler-a
    {:context-path         "/ws-a" ;WS handler context
     :allow-null-path-info true ;default false
-    :on-connect           (fn [& args]
-                            (log/info "WS connect" args))
-    :on-error             (fn [& args]
-                            (log/info "WS error" args))
+    :on-connect           (fn [ws]
+                            (log/info "WS connect" ws))
+    :on-error             (fn [ws e]
+                            (log/info "WS error" e))
     :on-text              (fn [ws text]
                             (log/info "text:" text)
                             (ws/send! ws text))
-    :on-close             (fn [& args]
+    :on-close             (fn [ws status-code reason]
                             (log/info "WS close" args))
-    :on-bytes             (fn [& args]
-                            (log/info "WS bytes" args))}))
+    :on-bytes             (fn [ws bytes offset len]
+                            (log/info "WS bytes" bytes))}))
 
 ;; alternatively you can provide a :handler-fn key
 ;; the key should point to a function that accepts a
@@ -78,6 +78,35 @@ Jetty HTTP adapter for Luminus
  {:handler http-handler
   :was-handlers [ws-handler-a ws-handler-b]
   :port 3000})
+```
+
+WebSocketProtocol allows you to read and write data on the `ws` value:
+
+* (send! ws msg)
+* (send! ws msg callback)
+* (close! ws)
+* (remote-addr ws)
+* (idle-timeout! ws timeout)
+
+Notice that we support different type of msg:
+
+* **byte[]** and **ByteBuffer**: send binary websocket message
+* **String** and other Object: send text websocket message
+* **(fn [ws])** (clojure function): Custom function you can operate on
+  Jetty's [RemoteEndpoint](http://download.eclipse.org/jetty/stable-9/apidocs/org/eclipse/jetty/websocket/api/RemoteEndpoint.html)
+
+A callback can also be specified for `send!`:
+
+```clojure
+(send! ws msg {:write-failed (fn [throwable]) :write-success (fn [])})
+```
+
+ A callback is a map where keys `:write-failed` and `:write-success` are optional.
+
+There is a new option `:websockets` available. Accepting a map of context path and listener class:
+```clojure
+(use 'ring.adapter.jetty9)
+(run-jetty app {:websockets {"/loc" ws-handler}})
 ```
 
 ### attribution
