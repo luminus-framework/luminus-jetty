@@ -103,6 +103,17 @@ A callback can also be specified for `send!`:
 
 A callback is a map where keys `:write-failed` and `:write-success` are optional.
 
+### Js client example
+
+```javascript
+var websocket = new WebSocket("ws://localhost:3000/ws/");
+
+websocket.onopen = function (evt) { console.log("socket open"); };
+websocket.onclose = function (evt) { console.log("socket close"); };
+websocket.onmessage = function (evt) { console.log("socket message: " + evt.data); };
+websocket.onerror = function (evt) { websocket.send("message"); };
+```
+
 ### attribution
 
 Websocket support added based on [ring-jetty9-adapter](https://github.com/sunng87/ring-jetty9-adapter) implementation.
