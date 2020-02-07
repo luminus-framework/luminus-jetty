@@ -161,7 +161,7 @@
 
 (defn ^:internal proxy-ws-handler
   "Returns a Jetty websocket handler"
-  [{:keys [handler-fn
+  [{:keys [ring-handler
            ws-max-idle-time
            ws-max-text-message-size]
     :or   {ws-max-idle-time         500000
@@ -173,8 +173,8 @@
         (.setIdleTimeout ws-max-idle-time)
         (.setMaxTextMessageSize ws-max-text-message-size))
       (.setCreator factory
-                   (if handler-fn
-                     (reify-custom-ws-creator handler-fn)
+                   (if ring-handler
+                     (reify-custom-ws-creator ring-handler)
                      (reify-default-ws-creator options))))
     (handle [^String target, ^Request request req res]
       (let [wsf (proxy-super getWebSocketFactory)]

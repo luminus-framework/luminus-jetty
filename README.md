@@ -49,12 +49,12 @@ Jetty HTTP adapter for Luminus
     :on-bytes             (fn [ws bytes offset len]
                             (log/info "WS bytes" bytes))}))
 
-;; alternatively you can provide a :handler-fn key
+;; alternatively you can provide a :ring-handler key
 ;; the key should point to a function that accepts a
 ;; Ring request map to initialize the websocket connection
 (def ws-handler-b
-   {:context-path         "/ws-b" ;WS handler context    
-    :handler-fn   (fn [req]                    
+   {:context-path "/ws-b" ;WS handler context    
+    :ring-handler (fn [req]                    
                     {:on-connect (fn [& args]
                                    (log/info "WS connect" args))
                      :on-error   (fn [& args]
