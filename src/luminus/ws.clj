@@ -42,7 +42,7 @@
 
 (def ^:private no-op (constantly nil))
 
-(defn- write-callback
+(defn write-callback
   [{:keys [write-failed write-success]
     :or {write-failed  no-op
          write-success no-op}}]
@@ -119,7 +119,7 @@
   (req-of [this]
     (build-request-map (.. this (getSession) (getUpgradeRequest)))))
 
-(defn- proxy-ws-adapter
+(defn proxy-ws-adapter
   [{:keys [on-connect on-error on-text on-close on-bytes]
     :or {on-connect no-op
          on-error   no-op
@@ -142,13 +142,13 @@
     (onWebSocketBinary [^bytes payload offset len]
       (on-bytes this payload offset len))))
 
-(defn- reify-default-ws-creator
+(defn reify-default-ws-creator
   [options]
   (reify WebSocketCreator
     (createWebSocket [this _ _]
       (proxy-ws-adapter options))))
 
-(defn- reify-custom-ws-creator
+(defn reify-custom-ws-creator
   [ws-creator-fn]
   (reify WebSocketCreator
     (createWebSocket [this req resp]
@@ -159,7 +159,7 @@
               (.sendError resp code message))
           (proxy-ws-adapter ws-results))))))
 
-(defn ^:internal proxy-ws-handler
+(defn proxy-ws-handler
   "Returns a Jetty websocket handler"
   [{:keys [ring-handler
            ws-max-idle-time
