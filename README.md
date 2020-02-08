@@ -35,19 +35,19 @@ Jetty HTTP adapter for Luminus
 
 ;; a handler can be specified using a map
 (def ws-handler-a
-   {:context-path         "/ws-a" ;WS handler context
-    :allow-null-path-info true ;default false
-    :on-connect           (fn [ws]
-                            (log/info "WS connect" ws))
-    :on-error             (fn [ws e]
-                            (log/info "WS error" e))
-    :on-text              (fn [ws text]
-                            (log/info "text:" text)
-                            (ws/send! ws text))
-    :on-close             (fn [ws status-code reason]
-                            (log/info "WS close" args))
-    :on-bytes             (fn [ws bytes offset len]
-                            (log/info "WS bytes" bytes))}))
+  {:context-path         "/ws-a" ;WS handler context
+   :allow-null-path-info true ;default false
+   :on-connect           (fn [ws]
+                           (log/info "WS connect" ws))
+   :on-error             (fn [ws e]
+                           (log/info "WS error" e))
+   :on-text              (fn [ws text]
+                           (log/info "text:" text)
+                           (ws/send! ws text))
+   :on-close             (fn [ws status-code reason]
+                           (log/info "WS close" reason))
+   :on-bytes             (fn [ws bytes offset len]
+                           (log/info "WS bytes" bytes))})
 
 ;; alternatively you can provide a :ring-handler key
 ;; the key should point to a function that accepts a
