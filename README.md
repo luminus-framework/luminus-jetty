@@ -52,9 +52,12 @@ Jetty HTTP adapter for Luminus
 ;; alternatively you can provide a :ring-handler key
 ;; the key should point to a function that accepts a
 ;; Ring request map to initialize the websocket connection
+
+;; when :context-path is omitted, the handler will be called
+;; on every request, and will be required to do its own routing
+
 (def ws-handler-b
-   {:context-path "/ws-b" ;WS handler context    
-    :ring-handler (fn [req]                    
+   {:ring-handler (fn [req]                    
                     {:on-connect (fn [& args]
                                    (log/info "WS connect" args))
                      :on-error   (fn [& args]

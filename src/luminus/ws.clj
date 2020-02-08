@@ -1,6 +1,6 @@
 (ns luminus.ws
   (:require [clojure.string :as string])
-  (:import 
+  (:import
    [javax.servlet.http HttpServletResponse]
    [org.eclipse.jetty.server Request]
    [org.eclipse.jetty.server.handler
@@ -189,7 +189,9 @@
                           allow-null-path-info?]
                    :or   {allow-null-path-info? false}
                    :as   options}]
-  (doto (ContextHandler.)
-    (.setContextPath context-path)
-    (.setAllowNullPathInfo allow-null-path-info?)
-    (.setHandler (proxy-ws-handler options))))
+  (if context-path
+    (doto (ContextHandler.)
+      (.setContextPath context-path)
+      (.setAllowNullPathInfo allow-null-path-info?)
+      (.setHandler (proxy-ws-handler options)))
+    (proxy-ws-handler options)))
