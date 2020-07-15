@@ -1,5 +1,7 @@
 # luminus-jetty
 
+[![Clojars Project](https://img.shields.io/clojars/v/luminus-jetty.svg)](https://clojars.org/luminus-jetty)
+
 Jetty HTTP adapter for Luminus
 
 ### HTTP handler
