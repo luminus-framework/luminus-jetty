@@ -73,13 +73,13 @@ Jetty HTTP adapter for Luminus
 ;;create a single WS handler
 (http/start
  {:handler http-handler
-  :was-handler ws-handler-a
+  :ws-handler ws-handler-a
   :port 3000})
 
 ;;create multiple WS handlers
 (http/start
  {:handler http-handler
-  :was-handlers [ws-handler-a ws-handler-b]
+  :ws-handlers [ws-handler-a ws-handler-b]
   :port 3000})
 ```
 
