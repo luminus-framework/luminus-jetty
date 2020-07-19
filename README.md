@@ -38,7 +38,7 @@ Jetty HTTP adapter for Luminus
 ;; a handler can be specified using a map
 (def ws-handler-a
   {:context-path         "/ws-a" ;WS handler context
-   :allow-null-path-info true ;default false
+   :allow-null-path-info? true ;default false
    :on-connect           (fn [ws]
                            (log/info "WS connect" ws))
    :on-error             (fn [ws e]
