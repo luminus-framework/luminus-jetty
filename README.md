@@ -28,18 +28,12 @@ Jetty HTTP adapter for Luminus
 (ns myapp.core
   (:require
    [luminus.ws :as ws]
-   [luminus.http-server :as http]))
-
-(defn http-handler [request]
-  {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body (:remote-addr request)})
+   [luminus.http-server :as http]
+   [clojure.tools.logging :as log]))
 
 ;; a handler can be specified using a map
 (def ws-handler-a
-  {:context-path         "/ws-a" ;WS handler context
-   :allow-null-path-info? true ;default false
-   :on-connect           (fn [ws]
+  {:on-connect           (fn [ws]
                            (log/info "WS connect" ws))
    :on-error             (fn [ws e]
                            (log/info "WS error" e))
@@ -51,37 +45,39 @@ Jetty HTTP adapter for Luminus
    :on-bytes             (fn [ws bytes offset len]
                            (log/info "WS bytes" bytes))})
 
-;; alternatively you can provide a :ring-handler key
-;; the key should point to a function that accepts a
+;; alternatively you can provide a function that accepts a
 ;; Ring request map to initialize the websocket connection
-
-;; when :context-path is omitted, the handler will be called
-;; on every request, and will be required to do its own routing
+;;
+;; websocket upgrade headers like subprotocol and extensions
+;; are available from the `req` via `(:websocket-subprotocols req)`
+;; and `(:websocket-extensions req)`.
 
 (def ws-handler-b
-   {:ring-handler (fn [req]                    
-                    {:on-connect (fn [& args]
-                                   (log/info "WS connect" args))
-                     :on-error   (fn [& args]
-                                   (log/info "WS error" args))
-                     :on-text    (fn [ws text]
-                                   (log/info "text:" text)
-                                   (ws/send! ws text))
-                     :on-close   (fn [& args]
-                                   (log/info "WS close" args))
-                     :on-bytes   (fn [& args]
-                                   (log/info "WS bytes" args))})})
+  (fn [req]
+    {:on-connect (fn [& args]
+                   (log/info "WS connect" args))
+     :on-error   (fn [& args]
+                   (log/info "WS error" args))
+     :on-text    (fn [ws text]
+                   (log/info "text:" text)
+                   (ws/send! ws text))
+     :on-close   (fn [& args]
+                   (log/info "WS close" args))
+     :on-bytes   (fn [& args]
+                   (log/info "WS bytes" args))})})
+
+(defn web-handler [request]
+  (if (ws/ws-upgrade-request? request)
+    ;; websocket upgrade request
+    (ws/ws-upgrade-response ws-handler-a)
+    ;; normal http request
+    {:status 200
+     :headers {"Content-Type" "text/plain"}
+     :body (:remote-addr request)}))
 
 ;;create a single WS handler
 (http/start
- {:handler http-handler
-  :ws-handler ws-handler-a
-  :port 3000})
-
-;;create multiple WS handlers
-(http/start
- {:handler http-handler
-  :ws-handlers [ws-handler-a ws-handler-b]
+ {:handler web-handler
   :port 3000})
 ```
 
@@ -121,7 +117,10 @@ websocket.onerror = function (evt) { websocket.send("message"); };
 
 ### attribution
 
-Websocket support added based on [ring-jetty9-adapter](https://github.com/sunng87/ring-jetty9-adapter) implementation.
+This library is based on
+[ring-jetty9-adapter](https://github.com/sunng87/ring-jetty9-adapter)
+which provides a Jetty ring adapter based on Jetty 10, with additional
+websocket support.
 
 ## License
 
