@@ -5,4 +5,4 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [org.clojure/tools.logging "1.2.3"]
-                 [info.sunng/ring-jetty9-adapter "0.17.0"]])
+                 [info.sunng/ring-jetty9-adapter "0.17.2"]])
